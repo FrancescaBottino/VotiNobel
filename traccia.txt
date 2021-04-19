@@ -1,0 +1,61 @@
+Per salvare le possibili soluzioni --> Set, non mi interessa l'ordine
+
+INPUT: 
+     -Insieme di Esame (Partenza) 
+     -Numero di crediti (m)
+     
+OUTPUT: 
+     -Insieme di Esame (Set), sottoinsieme di PARTENZA,
+     tale che la somma di esame.crediti()==m
+     e la media di Esame.voto() sia massima   
+     
+APPROCCIO 1 (il più stupido)
+Ad ogni livello della ricorsione aggiungo un esame, 
+devo decidere quale, simile agli anagrammi --> li provo tutti
+
+-SOLUZIONE PARZIALE: 
+  PARZIALE= sottoinsieme di esattamente L elementi dove L: livello ric
+
+-GENERAZIONE SOLUZIONE PARZIALE: 
+  Per tutti i casi che non ho ancora considerato (tutti gli esami non
+  ancora compresi in PARZIALE), provo ad aggiungere --> faccio andare
+  avanti la ricorsione -> faccio backtracking
+  Quindi a livello L=0 --> ho N scelte possibili --> PARZIALE ={e1} .. o ={en}
+  se ho L=1 --> PARZIALE={e1, e2} oppure {e1, e3} ecc..(sotto aver scelto e1)
+  oppure L=0 --> PARZIALE={e2} e L=1 --> PARZIALE={e2,e1}
+  Ma in questo caso considero due opzioni uguali : e1,e2 e e2,e1 che sono uguali 
+  perchè non consideriamo l'ordine
+  
+-CASO TERMINALE:
+1) quando sono finiti tutti gli esami, se L=N --> non ci sono più esami da aggiungere.
+ Controllo soluzione parziale: 
+    - se vincolo sui crediti rispettato -->se PARZIALE.sommaCrediti()==m
+    (se PARZIALE.media() > tutte le medie viste fino ad ora, allora ne tengo traccia
+    altrimenti non faccio niente)
+    - se PARZIALE.sommaCrediti() != m --> abbandono la ricorsione
+    
+2) quando la somma dei crediti raggiunge m, non posso sforare il numero di crediti 
+se PARZIALE.sommaCrediti()>m --> mi fermo subito, scarto parziale
+se invece PARZIALE.sommaCrediti() == m --> controllo soluzione parziale
+
+  
+APPROCCIO 2(più furbo)
+Andando in ordine, decidiamo se l'esame dovrebbe far parte della soluzione o no:
+li analizzo a ogni livello --> così da non considerare i doppioni
+
+-LIVELLO DELLA RICORSIONE (L)
+ --> indica quale corso sto decidendo di mettere/non mettere nella soluzione
+ 
+ supponiamo di avere PARTENZA = {e1,e2,e3..en}
+ L=0 : considero e1 (solo 2 possibilità per ogni livello)
+   - lo metto --> PARZIALE={e1}, considero e2
+       L=1  -lo metto --> PARZIALE={e1,e2}
+       L=1  -non lo metto --> PARZIALE={e1}
+   - non lo metto --> PARZIALE ={}
+
+
+
+
+
+
+          
