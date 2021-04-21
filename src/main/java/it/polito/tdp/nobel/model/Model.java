@@ -1,5 +1,6 @@
 package it.polito.tdp.nobel.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -9,7 +10,7 @@ import it.polito.tdp.nobel.db.EsameDAO;
 public class Model {
 
 	private List<Esame> partenza;
-	private Set<Esame> soluzioneMigliore; //usata solo quando trovo soluzioni migliore di quelle trovate
+	private List<Esame> soluzioneMigliore; //usata solo quando trovo soluzioni migliore di quelle trovate
 	private double mediaSoluzioneMigliore;
 	
 	
@@ -21,25 +22,27 @@ public Model() {
 }
 	
 	
-	public Set<Esame> calcolaSottoinsiemeEsami(int numeroCrediti) {
+	public List<Esame> calcolaSottoinsiemeEsami(int numeroCrediti) {
 		
 		//Livello più alto della ricorsione, + la chiamo
 		
-		Set<Esame> parziale= new HashSet<Esame>(); //inizialmente vuoto
+		List<Esame> parziale= new ArrayList<Esame>(); //inizialmente vuoto
 		
-		soluzioneMigliore= new HashSet<Esame>(); //Inizialmente vuoto 
+		soluzioneMigliore= new ArrayList<Esame>(); //Inizialmente vuoto 
 		
 		mediaSoluzioneMigliore=0; //pulisco
 		
 		//cerca1(parziale, 0, numeroCrediti); //chiama la ricorsione, livello =0 PRIMO APPROCCIO
 		
-		cerca2(parziale, 0, numeroCrediti); //SECONDO APPROCCIO
+		cerca1(parziale, 0, numeroCrediti); //SECONDO APPROCCIO
 		
 		return soluzioneMigliore;	 //vuota se non ne trova nessuna
 	}
 	
 	//COMPLESSITA : 2^N , SEMPRE ESPONENZIALE, ma migliore
-	public void cerca2 (Set<Esame> parziale, int L, int m) {
+	//APPROCCIO 2)
+	/*
+	public void cerca2 (List<Esame> parziale, int L, int m) {
 		
 		//metodo ricorsivo 
 		
@@ -56,7 +59,7 @@ public Model() {
 			double media=calcolaMedia(parziale);
 					
 			if(media>mediaSoluzioneMigliore) {
-				soluzioneMigliore=new HashSet<>(parziale); //sovrascrivo tutto
+				soluzioneMigliore=new ArrayList<>(parziale); //sovrascrivo tutto
 				mediaSoluzioneMigliore=media; //mi salvo anche la sol.
 					}
 					
@@ -80,10 +83,14 @@ public Model() {
 		cerca2(parziale, L+1, m); //se non aggiungo L
 		
 	}
+	*/
+	
 	
 
-	//COMPLESSITA : N! (simile anagrammi)
-	private void cerca1(Set<Esame> parziale, int L, int m) {
+	//COMPLESSITA : N! (simile anagrammi) 
+	//APPROCCIO 1)
+	
+	private void cerca1(List<Esame> parziale, int L, int m) {
 		
 		//metodo ricorsivo 
 		
@@ -100,7 +107,7 @@ public Model() {
 			double media=calcolaMedia(parziale);
 			
 			if(media>mediaSoluzioneMigliore) {
-				soluzioneMigliore=new HashSet<>(parziale); //sovrascrivo tutto
+				soluzioneMigliore=new ArrayList<>(parziale); //sovrascrivo tutto
 				mediaSoluzioneMigliore=media; //mi salvo anche la sol.
 			}
 			
@@ -116,9 +123,9 @@ public Model() {
 		
 		
 		//2) Generare i sotto-problemi
-		for(Esame e: partenza) {
+		/*for(Esame e: partenza) {
 			
-			//per migliorare soluzione, evito di controllare olsuzioni inutili, elemente scabiati
+			//per migliorare soluzione, evito di controllare soluzioni inutili, elemente scabiati
 			
 			if(!parziale.contains(e))  //aggiungo+lancio+rimuovo
 				{ parziale.add(e);
@@ -127,17 +134,53 @@ public Model() {
 				}
 			
 				}
+		*/
+		
+		/*soluzione forse migliore: 
+		 * FACCIO IL CONTROLLO IN PIU SUI LIVELLI PER EVITARE TUTTI TUTTI I DUPLICATI, VADO IN ORDINE 
+		 * 
+		 * 
+		 * for(int i=0; i<partenza.size(); i++){
+		 * 
+		 * if(!parziale.contains(partenza.get(i)) && i>=L) {
+		 * 
+		 * parziale.add(partenza.get(i));
+		 * cerca1(parziale, L+1, m);
+		 * parziale.remove(partenza.get(i));
+		 * }
+		 * }
+		 * 
+		 * 
+		 * CONTROLLO ULTIMO ELEMENTO INSERITO E VADO A VEDERE LA SUA POSIZIONE
+		 * PER VEDERE SE POSSO INSERIRLO O MENO
+		 * NO-> PERCHE PARZIALE E' UN SET
+		 * ---> USO LINKEDHASHSET OPPURE LISTA 
+		 */
 			
 			
+		int lastIndex=0;
+		if(parziale.size()>0) {
+			lastIndex= partenza.indexOf(parziale.get(parziale.size()-1)); //mi salvo la posizione dell'ultimo elemento inserito
+			
+		}
+		
+		for(int i=lastIndex; i<partenza.size(); i++) {
+			
+			if(!parziale.contains(partenza.get(i)) && i>=L) {
+				  
+				  parziale.add(partenza.get(i));
+				  cerca1(parziale, L+1, m);
+				  parziale.remove(partenza.get(i));
+				}
+			
+			}
+		
 		}
 		
 		
 		
-		
-	
 
-
-	public double calcolaMedia(Set<Esame> esami) {
+	public double calcolaMedia(List<Esame> esami) {
 		
 		int crediti = 0;
 		int somma = 0;
@@ -150,7 +193,7 @@ public Model() {
 		return somma/crediti;
 	}
 	
-	public int sommaCrediti(Set<Esame> esami) {
+	public int sommaCrediti(List<Esame> esami) {
 		int somma = 0;
 		
 		for(Esame e : esami)
